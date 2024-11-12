@@ -20,7 +20,7 @@ class RoleManager extends Connection
             if (!$result) throw new Exception("Role '$stringRole' not found in the database.");
             return (int)$result["id"];
         } catch (PDOException $e) {
-            throw new Exception("Error while searching for Role ID: {$e->getMessage()}", (int)$e->getCode());
+            throw new Exception("Error occurred while retrieving the ID for role '$stringRole': {$e->getMessage()}", (int)$e->getCode());
         } finally {
             parent::closeConnection();
         }
@@ -35,7 +35,7 @@ class RoleManager extends Connection
                 $stmt->execute([":n" => $element->toString()]);
             }
         } catch (PDOException $e) {
-            throw new Exception("Error on Insert Role: {$e->getMessage()}", (int)$e->getCode());
+            throw new Exception("Error inserting role '{$element->toString()}': {$e->getMessage()}", (int)$e->getCode());
         } finally {
             parent::closeConnection();
         }
@@ -48,7 +48,7 @@ class RoleManager extends Connection
         try {
             $stmt->execute([":i" => self::getIdByRole($role)]);
         } catch (PDOException $e) {
-            throw new Exception("Error on Delete Role: {$e->getMessage()}", (int)$e->getCode());
+            throw new Exception("Error deleting role '{$role->toString()}': {$e->getMessage()}", (int)$e->getCode());
         } finally {
             parent::closeConnection();
         }
@@ -61,7 +61,7 @@ class RoleManager extends Connection
         try {
             $stmt->execute(["n:" => $newRole->toString(), ":i" => self::getIdByRole($oldRole)]);
         } catch (PDOException $e) {
-            throw new Exception("Error on Update Role: {$e->getMessage()}", (int)$e->getCode());
+            throw new Exception("Error updating role from '{$oldRole}' to '{$newRole->toString()}': {$e->getMessage()}", (int)$e->getCode());
         } finally {
             parent::closeConnection();
         }

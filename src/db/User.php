@@ -30,7 +30,7 @@ class User extends Connection
                 ":r" => RoleManager::getIdByRole($this->role),
             ]);
         } catch (PDOException $e) {
-            throw new Exception("Error on Insert: {$e->getMessage()}", (int)$e->getCode());
+            throw new Exception("Error creating user '{$this->username}': {$e->getMessage()}", (int)$e->getCode());
         } finally {
             parent::closeConnection();
         }
@@ -43,7 +43,7 @@ class User extends Connection
         try {
             $stmt->execute();
         } catch (PDOException $e) {
-            throw new Exception("Error on Insert: {$e->getMessage()}", (int)$e->getCode());
+            throw new Exception("Error reading users: {$e->getMessage()}", (int)$e->getCode());
         } finally {
             parent::closeConnection();
         }
@@ -61,7 +61,7 @@ class User extends Connection
                 unlink($imagePath);
             }
         } catch (PDOException $e) {
-            throw new Exception("Error on Delete: {$e->getMessage()}", (int)$e->getCode());
+            throw new Exception("Error deleting user '{$this->username}': {$e->getMessage()}", (int)$e->getCode());
         } finally {
             parent::closeConnection();
         }
@@ -81,7 +81,7 @@ class User extends Connection
                 ":us" => $username,
             ]);
         } catch (PDOException $e) {
-            throw new Exception("Error on Update: {$e->getMessage()}", (int)$e->getCode());
+            throw new Exception("Error updating user '{$this->username}': {$e->getMessage()}", (int)$e->getCode());
         } finally {
             parent::closeConnection();
         }
@@ -98,7 +98,7 @@ class User extends Connection
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             return $result['total'] != 0;
         } catch (PDOException $e) {
-            throw new Exception("Error on Checking Attribute Existence: {$e->getMessage()}", (int)$e->getCode());
+            throw new Exception("Error while checking if '$value' exists for '$field': {$e->getMessage()}", (int)$e->getCode());
         } finally {
             parent::closeConnection();
         }
