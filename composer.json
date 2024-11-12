@@ -1,0 +1,17 @@
+{
+    "name": "omatple/myapp",
+    "description": "CRUD of LiveConnect",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "MyApp\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Omatple",
+            "email": "omatple@gmail.com"
+        }
+    ],
+    "require": {}
+}
