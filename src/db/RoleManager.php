@@ -3,7 +3,7 @@
 namespace MyApp\db;
 
 use \Exception;
-use \MyApp\Connection;
+use \MyApp\db\Connection;
 use \PDO;
 use \PDOException;
 

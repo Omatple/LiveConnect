@@ -5,7 +5,7 @@ namespace MyApp\db;
 use \Exception;
 use Faker\Factory;
 use Mmo\Faker\FakeimgProvider;
-use MyApp\Connection;
+use MyApp\db\Connection;
 use \PDO;
 use \PDOException;
 
@@ -21,7 +21,7 @@ class User extends Connection
 
     public function createUser(): void
     {
-        $query = "insert into users values (:u, :e, :p, :i, :r);";
+        $query = "insert into users (username, email, password, img, role_id) values (:u, :e, :p, :i, :r);";
         $stmt = parent::getConnection()->prepare($query);
         try {
             $stmt->execute([
@@ -38,7 +38,7 @@ class User extends Connection
         }
     }
 
-    public function createRandomUsers(int $amount): void
+    public static function createRandomUsers(int $amount): void
     {
         $faker = Factory::create('es_ES');
         $faker->addProvider(new FakeimgProvider($faker));
@@ -48,7 +48,7 @@ class User extends Connection
                 ->setUsername($username)
                 ->setEmail("{$username}@{$faker->freeEmailDomain()}")
                 ->setPassword("admin")
-                ->setRole($faker->randomElement(Role::cases())->toString())
+                ->setRole($faker->randomElement(Role::cases()))
                 ->setImage("img/" . $faker->fakeImg(dir: __DIR__ . "/../../public/img", width: 480, height: 480, fullPath: false, text: strtoupper(substr($username, 0, 2)), backgroundColor: [random_int(0, 255), random_int(0, 255), random_int(0, 255)]))
                 ->createUser();
         }
@@ -87,7 +87,7 @@ class User extends Connection
 
     public function updateUser(string $username): void
     {
-        $query = "update users set username=:u, email=:e, password=:p, image=:i, role=:r where username=:us";
+        $query = "update users set username=:u, email=:e, password=:p, img=:i, role=:r where username=:us";
         $stmt = parent::getConnection()->prepare($query);
         try {
             $stmt->execute([

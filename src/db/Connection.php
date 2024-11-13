@@ -1,6 +1,6 @@
 <?php
 
-namespace MyApp;
+namespace MyApp\db;
 
 require __DIR__ . "/../../vendor/autoload.php";
 
@@ -20,7 +20,7 @@ class Connection
 
     private static function openConnection(): PDO
     {
-        $dotenv = Dotenv::createImmutable(__DIR__ . "/../");
+        $dotenv = Dotenv::createImmutable(__DIR__ . "/../../");
         $dotenv->safeLoad();
         foreach (["USER", "HOST", "PORT", "DBNAME", "PASS"] as $key) {
             if (!isset($_ENV[$key])) throw new Exception("Error: Missing required environment variable '$key'");
