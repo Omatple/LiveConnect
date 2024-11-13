@@ -41,6 +41,13 @@ class RoleManager extends Connection
         }
     }
 
+    public static function createRolesEnum(): void
+    {
+        foreach (Role::cases() as $role) {
+            self::createRole($role);
+        }
+    }
+
     public static function deleteRole(Role $role)
     {
         $query = "delete from roles where id=:i";

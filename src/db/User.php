@@ -3,6 +3,8 @@
 namespace MyApp\db;
 
 use \Exception;
+use Faker\Factory;
+use Mmo\Faker\FakeimgProvider;
 use MyApp\Connection;
 use \PDO;
 use \PDOException;
@@ -25,7 +27,7 @@ class User extends Connection
             $stmt->execute([
                 ":u" => $this->username,
                 ":e" => $this->email,
-                ":p" => password_hash($this->password, PASSWORD_BCRYPT),
+                ":p" => $this->password,
                 ":i" => $this->image,
                 ":r" => RoleManager::getIdByRole($this->role),
             ]);
@@ -33,6 +35,22 @@ class User extends Connection
             throw new Exception("Error creating user '{$this->username}': {$e->getMessage()}", (int)$e->getCode());
         } finally {
             parent::closeConnection();
+        }
+    }
+
+    public function createRandomUsers(int $amount): void
+    {
+        $faker = Factory::create('es_ES');
+        $faker->addProvider(new FakeimgProvider($faker));
+        for ($i = 0; $i < $amount; $i++) {
+            $username = $faker->unique()->userName();
+            (new User)
+                ->setUsername($username)
+                ->setEmail("{$username}@{$faker->freeEmailDomain()}")
+                ->setPassword("admin")
+                ->setRole($faker->randomElement(Role::cases())->toString())
+                ->setImage("img/" . $faker->fakeImg(dir: __DIR__ . "/../../public/img", width: 480, height: 480, fullPath: false, text: strtoupper(substr($username, 0, 2)), backgroundColor: [random_int(0, 255), random_int(0, 255), random_int(0, 255)]))
+                ->createUser();
         }
     }
 
@@ -75,7 +93,7 @@ class User extends Connection
             $stmt->execute([
                 ":u" => $this->username,
                 ":e" => $this->email,
-                ":p" => password_hash($this->password, PASSWORD_BCRYPT),
+                ":p" => $this->password,
                 ":i" => $this->image,
                 ":r" => RoleManager::getIdByRole($this->role),
                 ":us" => $username,
@@ -102,5 +120,95 @@ class User extends Connection
         } finally {
             parent::closeConnection();
         }
+    }
+
+    /**
+     * Get the value of username
+     */
+    public function getUsername(): string
+    {
+        return $this->username;
+    }
+
+    /**
+     * Set the value of username
+     */
+    public function setUsername(string $username): self
+    {
+        $this->username = $username;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of email
+     */
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    /**
+     * Set the value of email
+     */
+    public function setEmail(string $email): self
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of password
+     */
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    /**
+     * Set the value of password
+     */
+    public function setPassword(string $password): self
+    {
+        $this->password = password_hash($password, PASSWORD_BCRYPT);
+
+        return $this;
+    }
+
+    /**
+     * Get the value of image
+     */
+    public function getImage(): string
+    {
+        return $this->image;
+    }
+
+    /**
+     * Set the value of image
+     */
+    public function setImage(?string $image): self
+    {
+        $this->image = $image ?? 'img/default.png';
+
+        return $this;
+    }
+
+    /**
+     * Get the value of role
+     */
+    public function getRole(): Role
+    {
+        return $this->role;
+    }
+
+    /**
+     * Set the value of role
+     */
+    public function setRole(?Role $role): self
+    {
+        $this->role = $role ?? Role::Guest;
+
+        return $this;
     }
 }
