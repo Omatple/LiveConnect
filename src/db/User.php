@@ -38,13 +38,23 @@ class User extends Connection
         }
     }
 
+    public static function createDefaultUser(string $username, string $email, string $password)
+    {
+        (new self())
+            ->setUsername($username)->setEmail($email)
+            ->setPassword($password)
+            ->setImage()
+            ->setRole(Role::User)
+            ->createUser();
+    }
+
     public static function createRandomUsers(int $amount): void
     {
         $faker = Factory::create('es_ES');
         $faker->addProvider(new FakeimgProvider($faker));
         for ($i = 0; $i < $amount; $i++) {
             $username = $faker->unique()->userName();
-            (new User)
+            (new self())
                 ->setUsername($username)
                 ->setEmail("{$username}@{$faker->freeEmailDomain()}")
                 ->setPassword("admin")
@@ -105,16 +115,16 @@ class User extends Connection
         }
     }
 
-    public function existsAttribute(string $field, string $value, ?string $excludeUsername = null): bool
+    public static function isAttributeTaken(string $field, string $value, ?string $excludeUsername = null): bool
     {
         if (!in_array($field, ['username', 'email'])) throw new Exception("Invalid field name: $field");
         $query = ($excludeUsername === null) ? "select count(*) as total from users where $field=:v"
             : "select count(*) as total from users where $field=:v and username<>:eu";
         $stmt = parent::getConnection()->prepare($query);
         try {
-            ($excludeUsername !== null) ? $stmt->execute([":v" => $value]) : $stmt->execute([":v" => $value, ":eu" => $excludeUsername]);
+            ($excludeUsername === null) ? $stmt->execute([":v" => $value]) : $stmt->execute([":v" => $value, ":eu" => $excludeUsername]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $result['total'] != 0;
+            return $result['total'] === 0;
         } catch (PDOException $e) {
             throw new Exception("Error while checking if '$value' exists for '$field': {$e->getMessage()}", (int)$e->getCode());
         } finally {
@@ -187,7 +197,7 @@ class User extends Connection
     /**
      * Set the value of image
      */
-    public function setImage(?string $image): self
+    public function setImage(?string $image = null): self
     {
         $this->image = $image ?? 'img/default.png';
 
