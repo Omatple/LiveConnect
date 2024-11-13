@@ -2,10 +2,10 @@
 
 namespace MyApp\db;
 
-use Exception;
+use \Exception;
 use MyApp\Connection;
-use PDO;
-use PDOException;
+use \PDO;
+use \PDOException;
 
 require __DIR__ . "/../../vendor/autoload.php";
 

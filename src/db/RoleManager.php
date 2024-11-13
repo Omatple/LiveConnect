@@ -2,10 +2,10 @@
 
 namespace MyApp\db;
 
-use Exception;
-use MyApp\Connection;
-use PDO;
-use PDOException;
+use \Exception;
+use \MyApp\Connection;
+use \PDO;
+use \PDOException;
 
 class RoleManager extends Connection
 {

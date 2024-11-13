@@ -13,12 +13,12 @@ class Connection
 {
     private static ?PDO $connection = null;
 
-    public static function getConnection(): PDO
+    protected static function getConnection(): PDO
     {
         return self::$connection ?? self::openConnection();
     }
 
-    public static function openConnection(): PDO
+    private static function openConnection(): PDO
     {
         $dotenv = Dotenv::createImmutable(__DIR__ . "/../");
         $dotenv->safeLoad();
@@ -38,7 +38,7 @@ class Connection
         return self::$connection;
     }
 
-    public static function closeConnection(): void
+    protected static function closeConnection(): void
     {
         self::$connection = null;
     }
