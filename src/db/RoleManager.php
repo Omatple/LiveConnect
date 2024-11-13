@@ -2,10 +2,10 @@
 
 namespace MyApp\db;
 
-use Exception;
-use MyApp\Connection;
-use PDO;
-use PDOException;
+use \Exception;
+use \MyApp\Connection;
+use \PDO;
+use \PDOException;
 
 class RoleManager extends Connection
 {
@@ -38,6 +38,13 @@ class RoleManager extends Connection
             throw new Exception("Error inserting role '{$element->toString()}': {$e->getMessage()}", (int)$e->getCode());
         } finally {
             parent::closeConnection();
+        }
+    }
+
+    public static function createRolesEnum(): void
+    {
+        foreach (Role::cases() as $role) {
+            self::createRole($role);
         }
     }
 
