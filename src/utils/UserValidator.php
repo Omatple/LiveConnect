@@ -57,18 +57,28 @@ class UserValidator
     {
         if (self::isUsernameInUse($username) || self::isEmailInUse($email)) {
             $_SESSION["error_username"] = "Username or email is already in use.";
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     public static function isUsernameInUse(string $username): bool
     {
-        return User::isAttributeTaken("username", $username);
+        return !User::isAttributeTaken("username", $username);
     }
 
     public static function isEmailInUse(string $email): bool
     {
-        return User::isAttributeTaken("email", $email);
+        return !User::isAttributeTaken("email", $email);
+    }
+
+    public static function getUserIfValidCredentials(string $username, string $password): User|false
+    {
+        $user = User::findUserByUsername($username);
+        if (!$user || !password_verify($password, $user->getPassword())) {
+            $_SESSION["error_username"] = "Invalid username or password.";
+            return false;
+        }
+        return $user;
     }
 }

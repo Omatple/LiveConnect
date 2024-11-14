@@ -1,5 +1,6 @@
 <?php
 
+use MyApp\db\Role;
 use MyApp\db\User;
 use MyApp\utils\SessionErrorDisplay;
 use MyApp\utils\UserSession;
@@ -10,6 +11,7 @@ require __DIR__ . "/../vendor/autoload.php";
 session_start();
 
 if (UserSession::requireLogin()) UserSession::redirectTo("home.php");
+if (UserSession::hasRole(Role::Guest)) unset($_SESSION["user"]);
 if (isset($_POST["username"])) {
     $username = UserValidator::sanitizeInput($_POST["username"]);
     $email = UserValidator::sanitizeInput($_POST["email"]);
