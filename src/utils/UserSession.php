@@ -3,7 +3,10 @@
 namespace MyApp\utils;
 
 use MyApp\db\Role;
+use MyApp\db\RoleManager;
 use MyApp\db\User;
+
+use function PHPSTORM_META\map;
 
 class UserSession
 {
@@ -41,6 +44,7 @@ class UserSession
 
     public static function hasRole(Role ...$roles): bool
     {
-        return isset($_SESSION["user"]) && in_array($_SESSION["user"]->getRole(), $roles, true);
+        $rolesNames = array_map(fn($role) => $role->toString(), $roles);
+        return isset($_SESSION["user"]) && in_array(RoleManager::getRoleNameById($_SESSION["user"]->getRoleId()), $rolesNames, true);
     }
 }
