@@ -17,11 +17,11 @@ class User extends Connection
     private string $email;
     private string $password;
     private string $image;
-    private Role $role;
+    private int $role_id;
 
     public function createUser(): void
     {
-        $query = "insert into users (username, email, password, img, role_id) values (:u, :e, :p, :i, :r);";
+        $query = "insert into users (username, email, password, image, role_id) values (:u, :e, :p, :i, :r);";
         $stmt = parent::getConnection()->prepare($query);
         try {
             $stmt->execute([
@@ -29,7 +29,7 @@ class User extends Connection
                 ":e" => $this->email,
                 ":p" => $this->password,
                 ":i" => $this->image,
-                ":r" => RoleManager::getIdByRole($this->role),
+                ":r" => $this->role_id,
             ]);
         } catch (PDOException $e) {
             throw new Exception("Error creating user '{$this->username}': {$e->getMessage()}", (int)$e->getCode());
@@ -45,7 +45,7 @@ class User extends Connection
             ->setEmail($email)
             ->setPassword($password)
             ->setImage()
-            ->setRole(Role::User)
+            ->setRoleId(RoleManager::getIdByRole(Role::User))
             ->createUser();
     }
 
@@ -56,7 +56,7 @@ class User extends Connection
             ->setEmail("")
             ->setPassword("")
             ->setImage()
-            ->setRole(Role::Guest)
+            ->setRoleId(RoleManager::getIdByRole(Role::Guest))
             ->createUser();
     }
 
@@ -86,8 +86,8 @@ class User extends Connection
             (new self())
                 ->setUsername($username)
                 ->setEmail("{$username}@{$faker->freeEmailDomain()}")
-                ->setPassword("admin")
-                ->setRole($faker->randomElement(Role::cases()))
+                ->setPassword($username . ".2024")
+                ->setRoleId(RoleManager::getIdByRole($faker->randomElement(array_filter(Role::cases(), fn($role) => $role !== Role::Guest))))
                 ->setImage("img/" . $faker->fakeImg(dir: __DIR__ . "/../../public/img", width: 480, height: 480, fullPath: false, text: strtoupper(substr($username, 0, 2)), backgroundColor: [random_int(0, 255), random_int(0, 255), random_int(0, 255)]))
                 ->createUser();
         }
@@ -126,7 +126,7 @@ class User extends Connection
 
     public function updateUser(string $username): void
     {
-        $query = "update users set username=:u, email=:e, password=:p, img=:i, role=:r where username=:us";
+        $query = "update users set username=:u, email=:e, password=:p, image=:i, role=:r where username=:us";
         $stmt = parent::getConnection()->prepare($query);
         try {
             $stmt->execute([
@@ -134,7 +134,7 @@ class User extends Connection
                 ":e" => $this->email,
                 ":p" => $this->password,
                 ":i" => $this->image,
-                ":r" => RoleManager::getIdByRole($this->role),
+                ":r" => $this->role_id,
                 ":us" => $username,
             ]);
         } catch (PDOException $e) {
@@ -250,19 +250,19 @@ class User extends Connection
     }
 
     /**
-     * Get the value of role
+     * Get the value of role_id
      */
-    public function getRole(): Role
+    public function getRoleId(): int
     {
-        return $this->role;
+        return $this->role_id;
     }
 
     /**
-     * Set the value of role
+     * Set the value of role_id
      */
-    public function setRole(?Role $role): self
+    public function setRoleId(?int $role_id): self
     {
-        $this->role = $role ?? Role::Guest;
+        $this->role_id = $role_id;
 
         return $this;
     }

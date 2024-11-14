@@ -7,7 +7,7 @@ CREATE TABLE users (
     username VARCHAR(16) PRIMARY KEY NOT NULL CHECK (username NOT LIKE '% %'),
     email VARCHAR(320) UNIQUE NOT NULL CHECK (email LIKE '%@%.%'),
     password VARCHAR(60) NOT NULL,
-    img VARCHAR(255) NOT NULL DEFAULT 'img/default.png',
+    image VARCHAR(255) NOT NULL DEFAULT 'img/default.png',
     role_id INT NOT NULL,
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
