@@ -3,7 +3,7 @@
 namespace MyApp\db;
 
 use \Exception;
-use \MyApp\db\Connection;
+use MyApp\db\Connection;
 use \PDO;
 use \PDOException;
 
@@ -26,7 +26,23 @@ class RoleManager extends Connection
         }
     }
 
-    public static function createRole(Role ...$role)
+    public static function getRoleNameById(int $role_id): string
+    {
+        $query = "select name from roles where id=:i";
+        $stmt = parent::getConnection()->prepare($query);
+        try {
+            $stmt->execute([":i" => $role_id]);
+            $roleName = $stmt->fetchColumn();
+            if (!$roleName) throw new Exception("Role with ID '$role_id' not found.");
+            return $roleName;
+        } catch (PDOException $e) {
+            throw new Exception("Error occurred while retrieving the name for role '$role_id': {$e->getMessage()}", (int)$e->getCode());
+        } finally {
+            parent::closeConnection();
+        }
+    }
+
+    public static function createRole(Role ...$role): void
     {
         $query = "insert into roles (name) values (:n)";
         $stmt = parent::getConnection()->prepare($query);
@@ -48,7 +64,7 @@ class RoleManager extends Connection
         }
     }
 
-    public static function deleteRole(Role $role)
+    public static function deleteRole(Role $role): void
     {
         $query = "delete from roles where id=:i";
         $stmt = parent::getConnection()->prepare($query);
@@ -61,7 +77,7 @@ class RoleManager extends Connection
         }
     }
 
-    public static function updateRole(string $oldRole, Role $newRole)
+    public static function updateRole(string $oldRole, Role $newRole): void
     {
         $query = "update roles set name=:n where id=:i";
         $stmt = parent::getConnection()->prepare($query);

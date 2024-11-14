@@ -17,10 +17,12 @@ class UserManager
         }
         return true;
     }
+
     public static function isUsernameTaken(string $username): bool
     {
         return User::isAttributeTaken("username", $username);
     }
+
     public static function isEmailTaken(string $email): bool
     {
         return User::isAttributeTaken("email", $email);

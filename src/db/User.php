@@ -3,8 +3,8 @@
 namespace MyApp\db;
 
 use \Exception;
-use Faker\Factory;
-use Mmo\Faker\FakeimgProvider;
+use \Faker\Factory;
+use \Mmo\Faker\FakeimgProvider;
 use MyApp\db\Connection;
 use \PDO;
 use \PDOException;
@@ -38,14 +38,43 @@ class User extends Connection
         }
     }
 
-    public static function createDefaultUser(string $username, string $email, string $password)
+    public static function createDefaultUser(string $username, string $email, string $password): void
     {
         (new self())
-            ->setUsername($username)->setEmail($email)
+            ->setUsername($username)
+            ->setEmail($email)
             ->setPassword($password)
             ->setImage()
             ->setRole(Role::User)
             ->createUser();
+    }
+
+    public static function createGuestUser(): void
+    {
+        (new self())
+            ->setUsername("")
+            ->setEmail("")
+            ->setPassword("")
+            ->setImage()
+            ->setRole(Role::Guest)
+            ->createUser();
+    }
+
+    public static function getGuestUser(): User|false
+    {
+        $role_id = RoleManager::getIdByRole(Role::Guest);
+        $query = "select * from users where role_id=:r limit 1";
+        $stmt = parent::getConnection()->prepare($query);
+        try {
+            $stmt->execute([
+                ":r" => $role_id,
+            ]);
+            return $stmt->fetchObject(self::class);
+        } catch (PDOException $e) {
+            throw new Exception("Error retrieving guest user with role_id '{$role_id}': {$e->getMessage()}", (int)$e->getCode());
+        } finally {
+            parent::closeConnection();
+        }
     }
 
     public static function createRandomUsers(int $amount): void
@@ -70,12 +99,12 @@ class User extends Connection
         $stmt = parent::getConnection()->prepare($query);
         try {
             $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_CLASS, self::class);
         } catch (PDOException $e) {
             throw new Exception("Error reading users: {$e->getMessage()}", (int)$e->getCode());
         } finally {
             parent::closeConnection();
         }
-        return $stmt->fetchAll(PDO::FETCH_CLASS, User::class);
     }
 
     public function deleteUser(): void
@@ -110,6 +139,22 @@ class User extends Connection
             ]);
         } catch (PDOException $e) {
             throw new Exception("Error updating user '{$this->username}': {$e->getMessage()}", (int)$e->getCode());
+        } finally {
+            parent::closeConnection();
+        }
+    }
+
+    public static function findUserByUsername(string $username): self|false
+    {
+        $query = "select * from users where username=:u";
+        $stmt = parent::getConnection()->prepare($query);
+        try {
+            $stmt->execute([
+                ":u" => $username,
+            ]);
+            return $stmt->fetchObject(self::class);
+        } catch (PDOException $e) {
+            throw new Exception("Error retrieving user '{$username}': {$e->getMessage()}", (int)$e->getCode());
         } finally {
             parent::closeConnection();
         }
