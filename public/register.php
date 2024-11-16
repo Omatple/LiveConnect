@@ -1,6 +1,6 @@
 <?php
 
-use MyApp\db\Role;
+use MyApp\utils\Role;
 use MyApp\db\User;
 use MyApp\utils\SessionErrorDisplay;
 use MyApp\utils\UserSession;
@@ -51,7 +51,10 @@ if (isset($_POST["username"])) {
             <div class="mb-4">
                 <label for="username" class="block text-gray-700 font-semibold mb-2">Username</label>
                 <input type="text" id="username" name="username" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Enter your username" required>
-                <?php SessionErrorDisplay::displaySessionError("username"); ?>
+                <?=
+                SessionErrorDisplay::displaySessionError("username");
+                SessionErrorDisplay::displaySessionError("register");
+                ?>
             </div>
             <div class="mb-4">
                 <label for="email" class="block text-gray-700 font-semibold mb-2">Email</label>
@@ -61,12 +64,11 @@ if (isset($_POST["username"])) {
             <div class="mb-4">
                 <label for="password" class="block text-gray-700 font-semibold mb-2">Password</label>
                 <input type="password" id="password" name="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Enter your password" required>
-                <?php SessionErrorDisplay::displaySessionError("password"); ?>
+                <?= SessionErrorDisplay::displaySessionError("password"); ?>
             </div>
             <div class="mb-4">
                 <label for="confirm-password" class="block text-gray-700 font-semibold mb-2">Confirm Password</label>
                 <input type="password" id="passwordConfirm" name="passwordConfirm" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Confirm your password" required>
-                <?php ?>
             </div>
             <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg font-semibold hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50">Register</button>
         </form>

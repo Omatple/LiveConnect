@@ -2,11 +2,11 @@
 
 namespace MyApp\utils;
 
-use MyApp\db\Role;
+use MyApp\utils\Role;
 use MyApp\db\RoleManager;
 use MyApp\db\User;
 
-use function PHPSTORM_META\map;
+require __DIR__ . "/../../vendor/autoload.php";
 
 class UserSession
 {

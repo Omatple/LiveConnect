@@ -2,12 +2,12 @@
 
 namespace MyApp\db;
 
-require __DIR__ . "/../../vendor/autoload.php";
-
 use \Dotenv\Dotenv;
 use \Exception;
 use \PDO;
 use \PDOException;
+
+require __DIR__ . "/../../vendor/autoload.php";
 
 class Connection
 {
@@ -22,7 +22,7 @@ class Connection
     {
         $dotenv = Dotenv::createImmutable(__DIR__ . "/../../");
         $dotenv->safeLoad();
-        foreach (["USER", "HOST", "PORT", "DBNAME", "PASS"] as $key) {
+        foreach (["USER", "HOST", "PORT", "DBNAME", "PASSWORD"] as $key) {
             if (!isset($_ENV[$key])) throw new Exception("Error: Missing required environment variable '$key'");
         }
         $dsn = "mysql:dbname={$_ENV['DBNAME']};port={$_ENV['PORT']};host={$_ENV['HOST']};charset=utf8mb4";
@@ -31,7 +31,7 @@ class Connection
             PDO::ATTR_PERSISTENT => true,
         ];
         try {
-            self::$connection = new PDO($dsn, $_ENV["USER"], $_ENV["PASS"], $options);
+            self::$connection = new PDO($dsn, $_ENV["USER"], $_ENV["PASSWORD"], $options);
         } catch (PDOException $e) {
             throw new Exception("Connection error: {$e->getMessage()}", (int)$e->getCode());
         }

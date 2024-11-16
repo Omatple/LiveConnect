@@ -16,6 +16,7 @@
     "require": {
         "vlucas/phpdotenv": "^5.6",
         "fakerphp/faker": "^1.24",
-        "mmo/faker-images": "^0.9.0"
+        "mmo/faker-images": "^0.9.0",
+        "phpmailer/phpmailer": "^6.9"
     }
 }

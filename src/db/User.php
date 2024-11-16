@@ -6,6 +6,8 @@ use \Exception;
 use \Faker\Factory;
 use \Mmo\Faker\FakeimgProvider;
 use MyApp\db\Connection;
+use MyApp\utils\Constants;
+use MyApp\utils\Role;
 use \PDO;
 use \PDOException;
 
@@ -17,6 +19,7 @@ class User extends Connection
     private string $email;
     private string $password;
     private string $image;
+    private string $username_last_changed;
     private int $role_id;
 
     public function createUser(): void
@@ -60,7 +63,7 @@ class User extends Connection
             ->createUser();
     }
 
-    public static function getGuestUser(): User|false
+    public static function getGuestUser(): self|false
     {
         $role_id = RoleManager::getIdByRole(Role::Guest);
         $query = "select * from users where role_id=:r limit 1";
@@ -114,7 +117,7 @@ class User extends Connection
         try {
             $stmt->execute([":u" => $this->username]);
             $imagePath = __DIR__ . "/../../public/" . basename($this->image);
-            if (basename($this->image) !== "default.png" && file_exists($imagePath)) {
+            if (basename($this->image) !== Constants::DEFAULT_IMAGE && file_exists($imagePath)) {
                 unlink($imagePath);
             }
         } catch (PDOException $e) {
@@ -124,21 +127,30 @@ class User extends Connection
         }
     }
 
-    public function updateUser(string $username): void
+    public function updateUser(string $targetUsername, bool $username = false, bool $email = false, bool $image = false, bool $password = false, bool $username_last_changed = false, bool $role_id = false): void
     {
-        $query = "update users set username=:u, email=:e, password=:p, image=:i, role=:r where username=:us";
+        $attributesUpdate = [
+            'username' => ':u',
+            'email' => ':e',
+            'image' => ':i',
+            'password' => ':p',
+            'username_last_changed' => ':ulc',
+            'role_id' => ':r',
+        ];
+        $queryParameters  = [':tu' => $targetUsername];
+        $setClauses = [];
+        foreach ($attributesUpdate as $column => $placeholder) {
+            if ($$column) {
+                $setClauses[] = "$column=$placeholder";
+                $queryParameters[$placeholder] = $this->{$column};
+            }
+        }
+        $query = "update users set " . implode(", ", $setClauses) . " where username=:tu";
         $stmt = parent::getConnection()->prepare($query);
         try {
-            $stmt->execute([
-                ":u" => $this->username,
-                ":e" => $this->email,
-                ":p" => $this->password,
-                ":i" => $this->image,
-                ":r" => $this->role_id,
-                ":us" => $username,
-            ]);
+            $stmt->execute($queryParameters);
         } catch (PDOException $e) {
-            throw new Exception("Error updating user '{$this->username}': {$e->getMessage()}", (int)$e->getCode());
+            throw new Exception("Error updating user '$targetUsername': {$e->getMessage()}", (int)$e->getCode());
         } finally {
             parent::closeConnection();
         }
@@ -155,6 +167,22 @@ class User extends Connection
             return $stmt->fetchObject(self::class);
         } catch (PDOException $e) {
             throw new Exception("Error retrieving user '{$username}': {$e->getMessage()}", (int)$e->getCode());
+        } finally {
+            parent::closeConnection();
+        }
+    }
+
+    public static function findUserByEmail(string $email): self|false
+    {
+        $query = "select * from users where email=:e";
+        $stmt = parent::getConnection()->prepare($query);
+        try {
+            $stmt->execute([
+                ":e" => $email,
+            ]);
+            return $stmt->fetchObject(self::class);
+        } catch (PDOException $e) {
+            throw new Exception("Error retrieving email '{$email}': {$e->getMessage()}", (int)$e->getCode());
         } finally {
             parent::closeConnection();
         }
@@ -244,7 +272,27 @@ class User extends Connection
      */
     public function setImage(?string $image = null): self
     {
-        $this->image = $image ?? 'img/default.png';
+        $this->image = $image ?? 'img/' . Constants::DEFAULT_IMAGE;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of username_last_changed
+     */
+    public function getUsername_last_changed()
+    {
+        return $this->username_last_changed;
+    }
+
+    /**
+     * Set the value of username_last_changed
+     *
+     * @return  self
+     */
+    public function setUsername_last_changed($username_last_changed)
+    {
+        $this->username_last_changed = $username_last_changed;
 
         return $this;
     }

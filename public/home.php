@@ -1,6 +1,6 @@
 <?php
 
-use MyApp\db\Role;
+use MyApp\utils\Role;
 use MyApp\utils\UserSession;
 
 require __DIR__ . "/../vendor/autoload.php";
@@ -19,11 +19,13 @@ $user = $_SESSION["user"] ?? UserSession::initializeGuestSession();
     <meta name="description" content="">
     <meta name="keywords" content="">
     <meta name="author" content="Ángel Martínez Otero">
-    <title>Documento</title>
+    <title>Home | File-To</title>
     <!-- CDN Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- CDN FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- CDN SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -57,7 +59,7 @@ $user = $_SESSION["user"] ?? UserSession::initializeGuestSession();
                             </a>
                         </div>
                         <div class="m-3">
-                            <a href="user.php" title="User View"
+                            <a href="userProfile.php" title="User View"
                                 class="md:w-42 bg-white tracking-wide text-gray-800 font-bold rounded border-2 border-blue-600 hover:border-blue-600 hover:bg-blue-600 hover:text-white shadow-md py-2 px-6 inline-flex items-center">
                                 <span class="mx-auto"><i class="fa-solid fa-user-large mr-2"></i>User View</span>
                             </a>
@@ -69,7 +71,7 @@ $user = $_SESSION["user"] ?? UserSession::initializeGuestSession();
                     if (UserSession::hasRole(Role::User)) {
                         echo <<< TXT
                         <div class="m-3">
-                            <a href="user.php" title="Your profile"
+                            <a href="userProfile.php" title="Your profile"
                                 class="md:w-42 bg-white tracking-wide text-gray-800 font-bold rounded border-2 border-blue-500 hover:border-blue-500 hover:bg-blue-500 hover:text-white shadow-md py-2 px-6 inline-flex items-center">
                                 <span class="mx-auto"><i class="fa-solid fa-id-badge mr-2"></i>Your profile</span>
                             </a>
@@ -94,5 +96,22 @@ $user = $_SESSION["user"] ?? UserSession::initializeGuestSession();
         </div>
     </div>
 </body>
+<?php
+$message = $_SESSION["success_message"] ?? false;
+if ($message) {
+    echo <<< TXT
+    <script>
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "$message",
+          showConfirmButton: false,
+          timer: 2000
+        }); 
+    </script>   
+    TXT;
+    unset($_SESSION["success_message"]);
+}
+?>
 
 </html>

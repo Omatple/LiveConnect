@@ -2,6 +2,7 @@
 
 namespace MyApp\utils;
 
+use \DateTime;
 use MyApp\db\User;
 
 require __DIR__ . "/../../vendor/autoload.php";
@@ -56,7 +57,7 @@ class UserValidator
     public static function isAccountInfoInUse(string $username, string $email): bool
     {
         if (self::isUsernameInUse($username) || self::isEmailInUse($email)) {
-            $_SESSION["error_username"] = "Username or email is already in use.";
+            $_SESSION["error_register"] = "Username or email is already in use.";
             return true;
         }
         return false;
@@ -64,21 +65,40 @@ class UserValidator
 
     public static function isUsernameInUse(string $username): bool
     {
-        return !User::isAttributeTaken("username", $username);
+        if (!User::isAttributeTaken("username", $username)) {
+            $_SESSION["error_usernameInUse"] = "Username is already in use.";
+            return true;
+        }
+        return false;
     }
 
     public static function isEmailInUse(string $email): bool
     {
-        return !User::isAttributeTaken("email", $email);
+        if (!User::isAttributeTaken("email", $email)) {
+            $_SESSION["error_emailInUse"] = "Email is already in use.";
+            return true;
+        }
+        return false;
     }
 
     public static function getUserIfValidCredentials(string $username, string $password): User|false
     {
         $user = User::findUserByUsername($username);
         if (!$user || !password_verify($password, $user->getPassword())) {
-            $_SESSION["error_username"] = "Invalid username or password.";
+            $_SESSION["error_login"] = "Invalid username or password.";
             return false;
         }
         return $user;
+    }
+
+    public static function isUsernameChangeAllowed(DateTime $lastUsernameChangeDate, int $requiredDaysForChange = 30): bool
+    {
+        $daysSinceLastChange = $lastUsernameChangeDate->diff(new DateTime())->days;
+        if ($daysSinceLastChange < $requiredDaysForChange) {
+            $daysLeft = $requiredDaysForChange - $daysSinceLastChange;
+            $_SESSION["error_editUsername"] = "Username change is not allowed yet. Please wait $daysLeft more days until the required number of days has passed.";
+            return false;
+        }
+        return true;
     }
 }
