@@ -1,6 +1,6 @@
 <?php
 
-use MyApp\db\Role;
+use MyApp\utils\Role;
 use MyApp\utils\CookiesManager;
 use MyApp\utils\SessionErrorDisplay;
 use MyApp\utils\UserSession;
@@ -67,7 +67,10 @@ if (isset($_POST["username"])) {
             <div class="mb-4">
                 <label for="username" class="block text-gray-700 font-semibold mb-2">Username</label>
                 <input type="text" id="username" name="username" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Enter your username" <?= CookiesManager::getCookieValueWithPrefix("username", "value="); ?> required>
-                <?php SessionErrorDisplay::displaySessionError("username"); ?>
+                <?=
+                SessionErrorDisplay::displaySessionError("username");
+                SessionErrorDisplay::displaySessionError("login");
+                ?>
             </div>
             <div class="mb-4">
                 <label for="password" class="block text-gray-700 font-semibold mb-2">Password</label>

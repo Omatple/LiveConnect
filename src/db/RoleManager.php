@@ -4,8 +4,11 @@ namespace MyApp\db;
 
 use \Exception;
 use MyApp\db\Connection;
+use MyApp\utils\Role;
 use \PDO;
 use \PDOException;
+
+require __DIR__ . "/../../vendor/autoload.php";
 
 class RoleManager extends Connection
 {
